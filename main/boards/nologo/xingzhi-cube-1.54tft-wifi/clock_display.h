@@ -12,6 +12,7 @@
 // 大号数字字体 (由 CMakeLists 的 BUILTIN_TEXT_FONT 编译进固件)
 LV_FONT_DECLARE(font_noto_sans_basic_30_4);
 
+// standby-clock build marker
 // 大号待机时钟: 待机(idle)时隐藏表情, 显示大字体 HH:MM + 日期;
 // 其它状态(聆听/思考/说话)恢复正常表情界面。
 class ClockDisplay : public SpiLcdDisplay {
