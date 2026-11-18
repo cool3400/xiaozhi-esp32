@@ -19,9 +19,6 @@
 
 #define TAG "XINGZHI_CUBE_1_54TFT_WIFI"
 
-// 待机大时钟所需的大号数字字体
-LV_FONT_DECLARE(font_noto_sans_basic_30_4);
-
 class XINGZHI_CUBE_1_54TFT_WIFI : public WifiBoard {
 private:
     Button boot_button_;

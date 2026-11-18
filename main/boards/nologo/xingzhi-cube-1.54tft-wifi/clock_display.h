@@ -9,17 +9,18 @@
 #include <lvgl.h>
 #include <time.h>
 
-// 大号数字字体 (由 CMakeLists 的 BUILTIN_TEXT_FONT 编译进固件)
-LV_FONT_DECLARE(font_noto_sans_basic_30_4);
+// 大号时间数字字体 (72px, 本板型目录 clock_font.c 内联)
+// 中文日期/星期字体 (34px, 本板型目录 date_font.c 内联)
+LV_FONT_DECLARE(clock_font);
+LV_FONT_DECLARE(date_font);
 
-// standby-clock build marker
-// 大号待机时钟: 待机(idle)时隐藏表情, 显示大字体 HH:MM + 日期;
+// 待机大时钟: 待机(idle)时隐藏表情, 显示大字体 HH:MM + 日期(MM/DD 周X);
 // 其它状态(聆听/思考/说话)恢复正常表情界面。
 class ClockDisplay : public SpiLcdDisplay {
 private:
     lv_obj_t* clock_box_ = nullptr;      // 覆盖层容器
-    lv_obj_t* clock_time_ = nullptr;     // 大号时间 HH:MM
-    lv_obj_t* clock_date_ = nullptr;     // 日期: MM/DD 周X
+    lv_obj_t* clock_time_ = nullptr;     // 大号时间 HH:MM (72px)
+    lv_obj_t* clock_date_ = nullptr;     // 日期: MM/DD 周X (34px 中文)
     bool ui_ready_ = false;
     bool clock_visible_ = false;
     int last_min_ = -1;
@@ -39,24 +40,24 @@ private:
         lv_obj_set_size(clock_box_, LV_HOR_RES, LV_VER_RES);
         lv_obj_align(clock_box_, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_style_bg_opa(clock_box_, LV_OPA_COVER, 0);
-        lv_obj_set_style_bg_color(clock_box_, lv_color_hex(0x000000), 0);
+        lv_obj_set_style_bg_color(clock_box_, lv_color_hex(0x050914), 0);
         lv_obj_set_style_border_width(clock_box_, 0, 0);
         lv_obj_set_style_pad_all(clock_box_, 0, 0);
         lv_obj_set_style_radius(clock_box_, 0, 0);
         lv_obj_set_scrollbar_mode(clock_box_, LV_SCROLLBAR_MODE_OFF);
 
-        // 大号时间
+        // 大号时间 (72px 数字): 居中略偏下
         clock_time_ = lv_label_create(clock_box_);
-        lv_obj_set_style_text_font(clock_time_, &font_noto_sans_basic_30_4, 0);
-        lv_obj_set_style_text_color(clock_time_, lv_color_hex(0x00E5FF), 0);
-        lv_obj_align(clock_time_, LV_ALIGN_CENTER, 0, -12);
+        lv_obj_set_style_text_font(clock_time_, &clock_font, 0);
+        lv_obj_set_style_text_color(clock_time_, lv_color_hex(0x4FC3F7), 0);
+        lv_obj_align(clock_time_, LV_ALIGN_CENTER, 0, 16);
         lv_label_set_text(clock_time_, "00:00");
 
-        // 日期行 (同字体, 通过较小颜色区分层级)
+        // 日期行 (34px 中文): 时间上方, MM/DD 周X
         clock_date_ = lv_label_create(clock_box_);
-        lv_obj_set_style_text_font(clock_date_, &font_noto_sans_basic_30_4, 0);
-        lv_obj_set_style_text_color(clock_date_, lv_color_hex(0xB0BEC5), 0);
-        lv_obj_align(clock_date_, LV_ALIGN_CENTER, 0, 32);
+        lv_obj_set_style_text_font(clock_date_, &date_font, 0);
+        lv_obj_set_style_text_color(clock_date_, lv_color_hex(0x90A4AE), 0);
+        lv_obj_align(clock_date_, LV_ALIGN_CENTER, 0, -46);
         lv_label_set_text(clock_date_, "");
 
         lv_obj_move_to_index(clock_box_, -1);
@@ -84,7 +85,7 @@ public:
         : SpiLcdDisplay(panel_io, panel, width, height, offset_x, offset_y, mirror_x, mirror_y, swap_xy) {}
 
     void UpdateStatusBar(bool update_all = false) override {
-        // 先让父类更新原生状态栏/时钟逻辑
+        // 先让父类更新原生状态栏逻辑
         LvglDisplay::UpdateStatusBar(update_all);
         EnsureClockUi();
         if (!ui_ready_) return;
@@ -115,7 +116,7 @@ public:
         }
         if (cur_day != last_day_) {
             last_day_ = cur_day;
-            char buf[24];
+            char buf[32];
             snprintf(buf, sizeof(buf), "%02d/%02d %s", t->tm_mon + 1, t->tm_mday,
                      weekdays[t->tm_wday]);
             lv_label_set_text(clock_date_, buf);
@@ -123,6 +124,7 @@ public:
     }
 };
 
-const char* ClockDisplay::weekdays[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+// tm_wday: 0=周日 ... 6=周六
+const char* ClockDisplay::weekdays[7] = {"周日", "周一", "周二", "周三", "周四", "周五", "周六"};
 
 #endif // _CLOCK_DISPLAY_H_
