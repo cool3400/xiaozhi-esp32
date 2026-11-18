@@ -3,11 +3,11 @@
 
 #include "display/lcd_display.h"
 #include "assets/lang_config.h"
+#include "application.h"
+#include "device_state.h"
 #include <esp_log.h>
 #include <lvgl.h>
 #include <time.h>
-
-#define TAG "ClockDisplay"
 
 // 大号数字字体 (由 CMakeLists 的 BUILTIN_TEXT_FONT 编译进固件)
 LV_FONT_DECLARE(font_noto_sans_basic_30_4);
@@ -59,10 +59,10 @@ private:
         lv_obj_align(clock_date_, LV_ALIGN_CENTER, 0, 32);
         lv_label_set_text(clock_date_, "");
 
-        lv_obj_move_foreground(clock_box_);
+        lv_obj_move_to_index(clock_box_, -1);
         lv_obj_add_flag(clock_box_, LV_OBJ_FLAG_HIDDEN);
         ui_ready_ = true;
-        ESP_LOGI(TAG, "Clock overlay UI ready");
+        ESP_LOGI("ClockDisplay", "Clock overlay UI ready");
     }
 
     void SetClockVisible(bool visible) {
@@ -71,7 +71,7 @@ private:
         DisplayLockGuard lock(this);
         if (visible) {
             lv_obj_remove_flag(clock_box_, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_move_foreground(clock_box_);
+            lv_obj_move_to_index(clock_box_, -1);
             last_min_ = -1;  // 强制刷新
         } else {
             lv_obj_add_flag(clock_box_, LV_OBJ_FLAG_HIDDEN);
