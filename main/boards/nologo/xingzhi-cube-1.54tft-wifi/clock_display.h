@@ -10,7 +10,7 @@
 #include <lvgl.h>
 #include <time.h>
 
-// 大号时间数字字体 (84px, 本板型目录 clock_font.c 内联)
+// 大号时间数字字体 (94px, 本板型目录 clock_font.c 内联)
 LV_FONT_DECLARE(clock_font);
 // 回退字体: 编译进固件的 30px 字体 (主题中文 cbin 拿不到时用)
 LV_FONT_DECLARE(font_noto_sans_basic_30_4);
@@ -20,7 +20,7 @@ LV_FONT_DECLARE(font_noto_sans_basic_30_4);
 class ClockDisplay : public SpiLcdDisplay {
 private:
     lv_obj_t* clock_box_ = nullptr;      // 覆盖层容器
-    lv_obj_t* clock_time_ = nullptr;     // 大号时间 HH:MM (84px)
+    lv_obj_t* clock_time_ = nullptr;     // 大号时间 HH:MM (94px)
     lv_obj_t* clock_date_ = nullptr;     // 日期: MM/DD 周X (主题中文字体)
     bool ui_ready_ = false;
     bool clock_visible_ = false;
@@ -64,8 +64,8 @@ private:
         // 大号时间 (84px 数字): 居中略偏下
         clock_time_ = lv_label_create(clock_box_);
         lv_obj_set_style_text_font(clock_time_, &clock_font, 0);
-        lv_obj_set_style_text_color(clock_time_, lv_color_hex(0x4FC3F7), 0);
-        lv_obj_align(clock_time_, LV_ALIGN_CENTER, 0, 14);
+        lv_obj_set_style_text_color(clock_time_, lv_color_hex(0x8FE9FF), 0);
+        lv_obj_align(clock_time_, LV_ALIGN_CENTER, 0, 8);
         lv_label_set_text(clock_time_, "00:00");
 
         // 日期行 (主题中文字体): 时间上方, MM/DD 周X
